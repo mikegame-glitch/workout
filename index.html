@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Workout</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#080810;--surface:#10101a;--surface2:#16161f;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);
+  --text:#f2f2f7;--muted:rgba(242,242,247,0.44);--hint:rgba(242,242,247,0.22);
+  --r:22px;--r-sm:16px;--r-xs:10px;
+}
+html,body{height:100%;overflow:hidden}
+body{font-family:'DM Sans',-apple-system,sans-serif;background:var(--bg);color:var(--text)}
+
+/* SCREENS */
+.screen{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;transition:transform 0.38s cubic-bezier(.77,0,.18,1),opacity 0.38s ease;will-change:transform}
+.screen.hidden-right{transform:translateX(100%);opacity:0;pointer-events:none}
+.screen.hidden-left{transform:translateX(-100%);opacity:0;pointer-events:none}
+.screen.visible{transform:translateX(0);opacity:1}
+
+/* ═══════════════ PAGE 1 — ACCUEIL ═══════════════ */
+#page1{background:var(--bg);padding:0 0 40px}
+.p1-header{padding:56px 22px 28px;display:flex;align-items:flex-start;justify-content:space-between}
+.p1-eyebrow{font-size:11px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:7px}
+.p1-title{font-size:30px;font-weight:700;letter-spacing:-0.04em;line-height:1.05;color:var(--text)}
+.rings-svg{width:64px;height:64px;flex-shrink:0}
+
+/* DAY CARDS GRID */
+.days-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:0 14px}
+
+.day-card{border-radius:var(--r);overflow:hidden;position:relative;height:200px;cursor:pointer;transition:transform 0.22s cubic-bezier(.34,1.56,.64,1)}
+.day-card:hover{transform:scale(1.025)}
+.day-card:active{transform:scale(0.97)}
+.day-card img{width:100%;height:100%;object-fit:cover;display:block}
+.day-card .dc-overlay{position:absolute;inset:0;background:linear-gradient(160deg,rgba(0,0,0,0.08) 0%,rgba(0,0,0,0.72) 100%)}
+.day-card .dc-content{position:absolute;inset:0;padding:16px;display:flex;flex-direction:column;justify-content:flex-end}
+.day-card .dc-tag{font-size:9px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;padding:3px 9px;border-radius:20px;display:inline-block;width:fit-content;margin-bottom:8px;opacity:0.9}
+.day-card .dc-name{font-size:19px;font-weight:700;letter-spacing:-0.03em;color:#fff;line-height:1}
+.day-card .dc-meta{font-size:11px;color:rgba(255,255,255,0.55);margin-top:4px}
+.day-card .dc-count{position:absolute;top:14px;right:14px;background:rgba(0,0,0,0.45);backdrop-filter:blur(6px);border-radius:20px;padding:4px 10px;font-size:10px;font-weight:600;color:rgba(255,255,255,0.85);display:flex;align-items:center;gap:4px}
+.day-card .dc-count::before{content:'';width:5px;height:5px;border-radius:50%;background:currentColor;display:block}
+
+/* ═══════════════ PAGE 2 — PROGRAMME ═══════════════ */
+#page2{background:var(--bg);padding:0 0 50px}
+
+.p2-hero{position:relative;height:260px;overflow:hidden}
+.p2-hero img{width:100%;height:100%;object-fit:cover;display:block}
+.p2-hero-overlay{position:absolute;inset:0;background:linear-gradient(to top,var(--bg) 0%,rgba(8,8,16,0.25) 60%)}
+.p2-back{position:absolute;top:52px;left:16px;width:38px;height:38px;border-radius:50%;background:rgba(0,0,0,0.5);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;cursor:pointer;border:0.5px solid rgba(255,255,255,0.18);transition:background 0.15s}
+.p2-back:hover{background:rgba(255,255,255,0.12)}
+.p2-back svg{width:18px;height:18px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.p2-hero-content{position:absolute;bottom:0;left:0;right:0;padding:20px 20px 0}
+.p2-tag{font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;padding:4px 12px;border-radius:20px;display:inline-block;margin-bottom:10px;opacity:0.92}
+.p2-day-name{font-size:28px;font-weight:700;letter-spacing:-0.04em;color:#fff;line-height:1}
+.p2-day-meta{font-size:13px;color:rgba(255,255,255,0.5);margin-top:5px;padding-bottom:18px}
+
+/* STATS ROW */
+.stats-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:14px 14px 22px}
+.stat-box{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--r-sm);padding:14px 12px;text-align:center}
+.stat-val{font-size:20px;font-weight:700;letter-spacing:-0.03em;color:var(--text);line-height:1}
+.stat-lbl{font-size:10px;color:var(--muted);margin-top:4px;letter-spacing:0.04em;text-transform:uppercase}
+
+/* EX SECTION */
+.p2-section{font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);padding:0 18px;margin-bottom:12px}
+.ex-list{display:flex;flex-direction:column;gap:10px;padding:0 14px}
+
+.ex-card{display:flex;align-items:center;border-radius:var(--r);overflow:hidden;background:var(--surface);border:0.5px solid var(--border);cursor:pointer;text-decoration:none;transition:all 0.18s ease;position:relative}
+.ex-card:hover{background:var(--surface2);border-color:var(--border2);transform:translateX(4px)}
+.ex-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--accent,#0a84ff);opacity:0;transition:opacity 0.18s;border-radius:0}
+.ex-card:hover::before{opacity:1}
+.ex-thumb{width:90px;height:72px;object-fit:cover;flex-shrink:0}
+.ex-body{flex:1;min-width:0;padding:0 12px}
+.ex-name{font-size:14px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:5px}
+.ex-pills{display:flex;gap:6px;align-items:center}
+.pill{font-size:10px;font-weight:500;padding:2px 9px;border-radius:20px}
+.pill-time{background:rgba(255,255,255,0.07);color:var(--muted)}
+.pill-yt{background:rgba(255,55,95,0.12);color:#ff5f75}
+.ex-chevron{padding:0 16px;color:var(--hint);font-size:18px;flex-shrink:0}
+
+/* TOTAL */
+.total-card{margin:16px 14px 0;background:var(--surface);border:0.5px solid var(--border);border-radius:var(--r-sm);padding:14px 18px;display:flex;justify-content:space-between;align-items:center}
+.total-card .lbl{font-size:12px;color:var(--muted)}
+.total-card .val{font-size:16px;font-weight:700;color:var(--text)}
+
+/* VIDEO PLAYER */
+.video-player-wrap{
+  overflow:hidden;
+  max-height:0;
+  transition:max-height 0.42s cubic-bezier(.77,0,.18,1), opacity 0.3s ease, margin 0.3s ease;
+  opacity:0;
+  margin:0 14px;
+  border-radius:var(--r);
+}
+.video-player-wrap.open{
+  max-height:260px;
+  opacity:1;
+  margin:0 14px 10px;
+}
+.video-player-wrap iframe{
+  width:100%;
+  height:220px;
+  border:none;
+  display:block;
+  border-radius:var(--r);
+  background:#000;
+}
+.video-close-btn{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  padding:8px 10px 6px;
+  gap:6px;
+  font-size:11px;
+  font-weight:600;
+  color:var(--muted);
+  cursor:pointer;
+  letter-spacing:0.04em;
+  text-transform:uppercase;
+}
+.video-close-btn:hover{color:var(--text)}
+.yt-player-div{width:100%;height:220px;border-radius:var(--r);overflow:hidden;background:#000}
+.yt-player-div iframe{border-radius:var(--r)}
+
+.ex-card.active{
+  background:var(--surface2);
+  border-color:var(--border2);
+}
+.ex-card.active::before{opacity:1}
+.ex-play-icon{
+  width:34px;height:34px;border-radius:50%;
+  background:rgba(255,255,255,0.08);
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;margin-right:4px;
+  transition:background 0.15s;
+}
+.ex-card:hover .ex-play-icon,.ex-card.active .ex-play-icon{background:rgba(255,255,255,0.15)}
+.ex-play-icon svg{width:14px;height:14px;fill:rgba(255,255,255,0.8);margin-left:2px}
+
+/* ANIMATIONS */
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+.days-grid .day-card{animation:fadeUp 0.35s ease both}
+.days-grid .day-card:nth-child(1){animation-delay:.04s}
+.days-grid .day-card:nth-child(2){animation-delay:.09s}
+.days-grid .day-card:nth-child(3){animation-delay:.14s}
+.days-grid .day-card:nth-child(4){animation-delay:.19s}
+.days-grid .day-card:nth-child(5){animation-delay:.24s}
+.days-grid .day-card:nth-child(6){animation-delay:.29s}
+.days-grid .day-card:nth-child(7){animation-delay:.34s}
+.ex-card{animation:fadeUp 0.3s ease both}
+.ex-card:nth-child(1){animation-delay:.03s}.ex-card:nth-child(2){animation-delay:.07s}
+.ex-card:nth-child(3){animation-delay:.11s}.ex-card:nth-child(4){animation-delay:.15s}
+.ex-card:nth-child(5){animation-delay:.19s}
+</style>
+</head>
+<body>
+
+<!-- ═════════ PAGE 1 ═════════ -->
+<div class="screen visible" id="page1">
+  <div class="p1-header">
+    <div>
+      <div class="p1-eyebrow">Cette semaine</div>
+      <h1 class="p1-title">Mon programme</h1>
+    </div>
+    <svg class="rings-svg" viewBox="0 0 64 64" fill="none">
+      <circle cx="32" cy="32" r="27" stroke="#ff375f" stroke-width="5.5" stroke-linecap="round" stroke-dasharray="124 46" stroke-dashoffset="-11" opacity="0.16"/>
+      <circle cx="32" cy="32" r="27" stroke="#ff375f" stroke-width="5.5" stroke-linecap="round" stroke-dasharray="96 74" stroke-dashoffset="-11"/>
+      <circle cx="32" cy="32" r="19" stroke="#32d74b" stroke-width="4.5" stroke-linecap="round" stroke-dasharray="83 37" stroke-dashoffset="-8" opacity="0.18"/>
+      <circle cx="32" cy="32" r="19" stroke="#32d74b" stroke-width="4.5" stroke-linecap="round" stroke-dasharray="74 46" stroke-dashoffset="-8"/>
+      <circle cx="32" cy="32" r="11" stroke="#30d5c8" stroke-width="3.5" stroke-linecap="round" stroke-dasharray="48 21" stroke-dashoffset="-5" opacity="0.2"/>
+      <circle cx="32" cy="32" r="11" stroke="#30d5c8" stroke-width="3.5" stroke-linecap="round" stroke-dasharray="44 25" stroke-dashoffset="-5"/>
+    </svg>
+  </div>
+  <div class="days-grid" id="daysGrid"></div>
+</div>
+
+<!-- ═════════ PAGE 2 ═════════ -->
+<div class="screen hidden-right" id="page2">
+  <div class="p2-hero">
+    <img id="p2Img" src="" alt="">
+    <div class="p2-hero-overlay"></div>
+    <div class="p2-back" id="backBtn">
+      <svg viewBox="0 0 18 18"><polyline points="11 4 6 9 11 14"/></svg>
+    </div>
+    <div class="p2-hero-content">
+      <div class="p2-tag" id="p2Tag"></div>
+      <div class="p2-day-name" id="p2Name"></div>
+      <div class="p2-day-meta" id="p2Meta"></div>
+    </div>
+  </div>
+  <div class="stats-row" id="statsRow"></div>
+  <div class="p2-section">Exercices</div>
+  <div class="ex-list" id="exList"></div>
+  <div class="total-card" id="totalCard"></div>
+</div>
+
+<!-- YouTube IFrame API chargée EN PREMIER, avant tout le reste -->
+<script src="https://www.youtube.com/iframe_api"></script>
+<script>
+// Promesse qui se résout quand l'API YT est prête
+const ytReady = new Promise(resolve => { window.onYouTubeIframeAPIReady = resolve; });
+
+const DAYS = [
+  {
+    name:'Lundi', short:'LUN', color:'#0a84ff', colorBg:'rgba(10,132,255,0.18)',
+    dur:'38 min', kcal:'320',
+    img:'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?w=900&auto=format&fit=crop&q=80',
+    exercises:[
+      {name:'Haut 45',    time:'15 min', img:'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=400&auto=format&fit=crop&q=80', url:'https://www.youtube.com/watch?v=wEeFJC0VdiU'},
+      {name:'Haut 30/30', time:'12 min', img:'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=400&auto=format&fit=crop&q=80', url:'https://www.youtube.com/watch?v=i5VA9_lnHy0'},
+      {name:'Pect XXL',   time:'8 min',  img:'https://images.unsplash.com/photo-1616803689943-5601631c7fec?w=400&auto=format&fit=crop&q=80', url:'https://www.youtube.com/watch?v=A61dLcsS9Ck'},
+      {name:'ABS Halt',   time:'5 min',  img:'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&auto=format&fit=crop&q=80', url:'https://www.youtube.com/watch?v=FLt6CEXRzvU'},
+    ]
+  },
+  {
+    name:'Mardi', short:'MAR', color:'#ff375f', colorBg:'rgba(255,55,95,0.18)',
+    dur:'60 min', kcal:'520',
+    img:'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=900&auto=format&fit=crop&q=80',
+    exercises:[
+      {name:'Haut 30/30', time:'15 min', img:'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=400&auto=format&fit=crop&q=80', url:'https://www.youtube.com/watch?v=i5VA9_lnHy0'},
+      {name:'Haut 45',    time:'15 min', img:'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=400&auto=format&fit=crop&q=80', url:'https://www.youtube.com/watch?v=wEeFJC0VdiU'},
+      {name:'Épaule',     time:'10 min', img:'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=400&auto=format&fit=crop&q=80', url:'https://www.youtube.com/watch?v=FzbaTDR9rl4'},
+      {name:'Pect Halt',  time:'10 min', img:'https://images.unsplash.com/photo-1616803689943-5601631c7fec?w=400&auto=format&fit=crop&q=80', url:'https://www.youtube.com/watch?v=tusmBTsRkvA'},
+      {name:'ABS',        time:'10 min', img:'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&auto=format&fit=crop&q=80', url:'https://www.youtube.com/watch?v=hl-B-sWNjK4'},
+    ]
+  },
+  {
+    name:'Mercredi', short:'MER', color:'#32d74b', colorBg:'rgba(50,215,75,0.18)',
+    dur:'38 min', kcal:'310',
+    img:'https://images.unsplash.com/photo-1549060279-7e168fcee0c2?w=900&auto=format&fit=crop&q=80',
+    exercises:[
+      {name:'Pect Halt',  time:'8 min',  img:'https://images.unsplash.com/photo-1616803689943-5601631c7fec?w=400&auto=format&fit=crop&q=80', url:'https://www.youtube.com/watch?v=o-W8CYduTSU'},
+      {name:'Haut 30/30', time:'12 min', img:'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=400&auto=format&fit=crop&q=80', url:'https://www.youtube.com/watch?v=2un8txHUxvc'},
+      {name:'Épaule',     time:'10 min', img:'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=400&auto=format&fit=crop&q=80', url:'https://www.youtube.com/watch?v=aTfteNiGqqg'},
+      {name:'ABS Halt',   time:'8 min',  img:'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&auto=format&fit=crop&q=80', url:'https://www.youtube.com/watch?v=tFBWLq1VykM'},
+    ]
+  },
+  {
+    name:'Jeudi', short:'JEU', color:'#ffd60a', colorBg:'rgba(255,214,10,0.18)',
+    dur:'38 min', kcal:'300',
+    img:'https://images.unsplash.com/photo-1526506118085-60ce8714f8c5?w=900&auto=format&fit=crop&q=80',
+    exercises:[
+      {name:'Haut 30/30', time:'15 min', img:'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=400&auto=format&fit=crop&q=80', url:'https://www.youtube.com/watch?v=i5VA9_lnHy0'},
+      {name:'Haut 45',    time:'15 min', img:'https://images.unsplash.com/photo-571019614242-c5c5dee9f50b?w=400&auto=format&fit=crop&q=80', url:'https://www.youtube.com/watch?v=wEeFJC0VdiU'},
+      {name:'ABS Halt',   time:'8 min',  img:'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&auto=format&fit=crop&q=80', url:'https://www.youtube.com/watch?v=tFBWLq1VykM'},
+    ]
+  },
+  {
+    name:'Vendredi', short:'VEN', color:'#ff6b35', colorBg:'rgba(255,107,53,0.18)',
+    dur:'60 min', kcal:'510',
+    img:'https://images.unsplash.com/photo-1599058945522-28d584b6f0ff?w=900&auto=format&fit=crop&q=80',
+    exercises:[
+      {name:'Cross Fit',  time:'12 min', img:'https://images.unsplash.com/photo-1605296867304-46d5465a13f1?w=400&auto=format&fit=crop&q=80', url:'https://www.youtube.com/watch?v=D3MxoqOh1QM'},
+      {name:'Cross Fit',  time:'8 min',  img:'https://images.unsplash.com/photo-1552674605-db6ffd4facb5?w=400&auto=format&fit=crop&q=80', url:'https://www.youtube.com/watch?v=k7pBeVSefBw'},
+      {name:'Haut 30/30', time:'15 min', img:'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=400&auto=format&fit=crop&q=80', url:'https://www.youtube.com/watch?v=i5VA9_lnHy0'},
+      {name:'Haut 45',    time:'15 min', img:'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=400&auto=format&fit=crop&q=80', url:'https://www.youtube.com/watch?v=wEeFJC0VdiU'},
+      {name:'ABS Halt',   time:'8 min',  img:'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&auto=format&fit=crop&q=80', url:'https://www.youtube.com/watch?v=tFBWLq1VykM'},
+    ]
+  },
+  {
+    name:'Samedi', short:'SAM', color:'#bf5af2', colorBg:'rgba(191,90,242,0.18)',
+    dur:'38 min', kcal:'330',
+    img:'https://images.unsplash.com/photo-1574680096145-d05b474e2155?w=900&auto=format&fit=crop&q=80',
+    exercises:[
+      {name:'Haut 45',    time:'15 min', img:'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=400&auto=format&fit=crop&q=80', url:'https://www.youtube.com/watch?v=7BkgQefxdrA'},
+      {name:'Pect Halt',  time:'10 min', img:'https://images.unsplash.com/photo-1616803689943-5601631c7fec?w=400&auto=format&fit=crop&q=80', url:'https://www.youtube.com/watch?v=tusmBTsRkvA'},
+      {name:'Pect Halt',  time:'8 min',  img:'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=400&auto=format&fit=crop&q=80', url:'https://www.youtube.com/watch?v=o-W8CYduTSU'},
+      {name:'ABS Halt',   time:'5 min',  img:'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&auto=format&fit=crop&q=80', url:'https://www.youtube.com/watch?v=FLt6CEXRzvU'},
+    ]
+  },
+  {
+    name:'Dimanche', short:'DIM', color:'#8e8e9e', colorBg:'rgba(142,142,158,0.16)',
+    dur:'38 min', kcal:'290',
+    img:'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=900&auto=format&fit=crop&q=80',
+    exercises:[
+      {name:'Haut 45',       time:'15 min', img:'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=400&auto=format&fit=crop&q=80', url:'https://www.youtube.com/watch?v=7BkgQefxdrA'},
+      {name:'Haut 30/30',    time:'12 min', img:'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=400&auto=format&fit=crop&q=80', url:'https://www.youtube.com/watch?v=2un8txHUxvc'},
+      {name:'Pect Pompe 100',time:'6 min',  img:'https://images.unsplash.com/photo-1616803689943-5601631c7fec?w=400&auto=format&fit=crop&q=80', url:'https://www.youtube.com/watch?v=tSFrzHPGZwM'},
+      {name:'ABS Halt',      time:'5 min',  img:'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&auto=format&fit=crop&q=80', url:'https://www.youtube.com/watch?v=tFBWLq1VykM'},
+    ]
+  },
+];
+
+const p1=document.getElementById('page1');
+const p2=document.getElementById('page2');
+const grid=document.getElementById('daysGrid');
+
+/* Build page 1 grid */
+DAYS.forEach((d,i)=>{
+  const card=document.createElement('div');
+  card.className='day-card';
+  card.innerHTML=`
+    <img src="${d.img}" alt="${d.name}" loading="${i<4?'eager':'lazy'}">
+    <div class="dc-overlay"></div>
+    <div class="dc-count" style="color:${d.color}">${d.exercises.length}</div>
+    <div class="dc-content">
+      <div class="dc-tag" style="background:${d.colorBg};color:${d.color}">${d.short}</div>
+      <div class="dc-name">${d.name}</div>
+      <div class="dc-meta">${d.dur} · ${d.kcal} kcal</div>
+    </div>
+  `;
+  card.addEventListener('click',()=>openDay(i));
+  grid.appendChild(card);
+});
+
+function openDay(i){
+  const d=DAYS[i];
+  const total=d.exercises.reduce((s,e)=>s+parseInt(e.time)||0,0);
+
+  document.getElementById('p2Img').src=d.img;
+  document.getElementById('p2Tag').textContent=d.dur+' · '+d.kcal+' kcal';
+  document.getElementById('p2Tag').style.cssText=`background:${d.colorBg};color:${d.color}`;
+  document.getElementById('p2Name').textContent=d.name;
+  document.getElementById('p2Meta').textContent=d.exercises.length+' exercices programmés';
+
+  document.getElementById('statsRow').innerHTML=`
+    <div class="stat-box"><div class="stat-val" style="color:${d.color}">${d.exercises.length}</div><div class="stat-lbl">Exercices</div></div>
+    <div class="stat-box"><div class="stat-val" style="color:${d.color}">${total}</div><div class="stat-lbl">Minutes</div></div>
+    <div class="stat-box"><div class="stat-val" style="color:${d.color}">${d.kcal}</div><div class="stat-lbl">Kcal</div></div>
+  `;
+
+  const list=document.getElementById('exList');
+  list.innerHTML='';
+  d.exercises.forEach((ex,idx)=>{
+    // Extract YouTube video ID
+    const ytMatch = ex.url.match(/(?:v=|youtu\.be\/)([^&?/]+)/);
+    const ytId = ytMatch ? ytMatch[1] : null;
+
+    // Card
+    const card=document.createElement('div');
+    card.className='ex-card';
+    card.style.setProperty('--accent',d.color);
+    card.innerHTML=`
+      <img class="ex-thumb" src="${ex.img}" alt="${ex.name}" loading="lazy">
+      <div class="ex-body">
+        <div class="ex-name">${ex.name}</div>
+        <div class="ex-pills">
+          <span class="pill pill-time">${ex.time}</span>
+          <span class="pill pill-yt">▶ YouTube</span>
+        </div>
+      </div>
+      <div class="ex-play-icon">
+        <svg viewBox="0 0 16 16"><path d="M4 2.5l9 5.5-9 5.5z"/></svg>
+      </div>
+    `;
+
+    // Video player container (inserted right after the card)
+    const playerWrap=document.createElement('div');
+    playerWrap.className='video-player-wrap';
+    const divId = 'yt-player-'+idx+'-'+Date.now();
+    playerWrap.innerHTML=`
+      <div class="video-close-btn" data-close>
+        <svg viewBox="0 0 14 14"><line x1="2" y1="2" x2="12" y2="12"/><line x1="12" y1="2" x2="2" y2="12"/></svg>
+        Fermer
+      </div>
+      <div id="${divId}" class="yt-player-div"></div>
+    `;
+
+    let ytPlayer = null;
+    let playerReady = false;
+
+    async function openPlayer(){
+      card.classList.add('active');
+      playerWrap.classList.add('open');
+
+      await ytReady; // attend que l'API soit disponible
+
+      if(!ytPlayer){
+        ytPlayer = new YT.Player(divId, {
+          height:'220',
+          width:'100%',
+          videoId: ytId,
+          playerVars:{autoplay:1, rel:0, modestbranding:1, playsinline:1},
+          events:{
+            onReady: e => { playerReady=true; e.target.playVideo(); }
+          }
+        });
+      } else {
+        if(playerReady) ytPlayer.playVideo();
+      }
+
+      setTimeout(()=>{
+        card.scrollIntoView({behavior:'smooth', block:'start'});
+      }, 80);
+    }
+
+    function closePlayer(){
+      card.classList.remove('active');
+      playerWrap.classList.remove('open');
+      if(ytPlayer && playerReady) ytPlayer.pauseVideo();
+    }
+
+    card.addEventListener('click',()=>{
+      const isOpen = card.classList.contains('active');
+      // Close all others
+      closeAllPlayers();
+      if(!isOpen && ytId) openPlayer();
+    });
+
+    playerWrap.querySelector('[data-close]').addEventListener('click',(e)=>{
+      e.stopPropagation();
+      closePlayer();
+    });
+
+    card._closePlayer = closePlayer;
+
+    list.appendChild(card);
+    list.appendChild(playerWrap);
+  });
+
+  document.getElementById('totalCard').innerHTML=`<span class="lbl">Durée totale</span><span class="val">${total} min</span>`;
+
+  p2.scrollTop=0;
+  p1.classList.remove('visible'); p1.classList.add('hidden-left');
+  p2.classList.remove('hidden-right'); p2.classList.add('visible');
+}
+
+document.getElementById('backBtn').addEventListener('click',()=>{
+  closeAllPlayers();
+  p2.classList.remove('visible'); p2.classList.add('hidden-right');
+  p1.classList.remove('hidden-left'); p1.classList.add('visible');
+});
+
+function closeAllPlayers(){
+  document.querySelectorAll('.ex-card.active').forEach(c=>{
+    if(c._closePlayer) c._closePlayer();
+    else c.classList.remove('active');
+  });
+  document.querySelectorAll('.video-player-wrap.open').forEach(p=>p.classList.remove('open'));
+}
+</script>
+</body>
+</html>
+</body>
+</html>
